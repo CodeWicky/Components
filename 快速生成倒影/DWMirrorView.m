@@ -25,8 +25,38 @@
 {
     CAReplicatorLayer * layer = (CAReplicatorLayer *)self.layer;
     CATransform3D transform = CATransform3DIdentity;
-    transform = CATransform3DTranslate(transform, 0, distant + self.bounds.size.height, 0);
-    transform = CATransform3DScale(transform, 1, -1, 0);
+    switch (self.mirrorDirection) {
+        case DWMirrowViewDirectionAbove:
+        {
+            transform = CATransform3DTranslate(transform, 0, - distant - self.bounds.size.height, 0);
+            transform = CATransform3DScale(transform, 1, -1, 0);
+        }
+            break;
+        case DWMirrowViewDirectionLeft:
+        {
+            transform = CATransform3DTranslate(transform, - distant - self.bounds.size.width, 0, 0);
+            transform = CATransform3DScale(transform, -1, 1, 0);
+        }
+            break;
+        case DWMirrowViewDirectionBelow:
+        {
+            transform = CATransform3DTranslate(transform, 0, distant + self.bounds.size.height, 0);
+            transform = CATransform3DScale(transform, 1, -1, 0);
+        }
+            break;
+        case DWMirrowViewDirectionRight:
+        {
+            transform = CATransform3DTranslate(transform, distant + self.bounds.size.width, 0, 0);
+            transform = CATransform3DScale(transform, -1, 1, 0);
+        }
+            break;
+        default:
+        {
+            transform = CATransform3DTranslate(transform, 0, distant + self.bounds.size.height, 0);
+            transform = CATransform3DScale(transform, 1, -1, 0);
+        }
+            break;
+    }
     layer.instanceTransform = transform;
 }
 
@@ -54,6 +84,7 @@
     self.mirrored = YES;
     self.dynamic = YES;
     self.mirrorAlpha = 0.5;
+    self.mirrorDirection = DWMirrowViewDirectionBelow;
 }
 
 #pragma mark ---override---
@@ -94,19 +125,72 @@
         else
         {
             layer.instanceCount = 1;
-            CGSize size = CGSizeMake(self.bounds.size.width, self.bounds.size.height * self.mirrorScale);
+            CGSize size = CGSizeZero;
+            switch (self.mirrorDirection) {
+                case DWMirrowViewDirectionAbove:
+                case DWMirrowViewDirectionBelow:
+                {
+                    size = CGSizeMake(self.bounds.size.width, self.bounds.size.height * self.mirrorScale);
+                }
+                    break;
+                case DWMirrowViewDirectionLeft:
+                case DWMirrowViewDirectionRight:
+                {
+                    size = CGSizeMake(self.bounds.size.width * self.mirrorScale, self.bounds.size.height );
+                }
+                    break;
+                default:
+                {
+                    size = CGSizeMake(self.bounds.size.width, self.bounds.size.height * self.mirrorScale);
+                }
+                    break;
+            }
             if (size.height > 0.0f && size.width > 0.0f)
             {
                 UIGraphicsBeginImageContextWithOptions(size, NO, 0.0f);
                 CGContextRef context = UIGraphicsGetCurrentContext();
-                CGContextScaleCTM(context, 1.0f, -1.0f);
-                CGContextTranslateCTM(context, 0.0f, -self.bounds.size.height);
+                switch (self.mirrorDirection) {
+                    case DWMirrowViewDirectionAbove:
+                    {
+                        CGContextScaleCTM(context, 1.0f, - 1.0f);
+                        CGContextTranslateCTM(context, 0.0f, - size.height);
+                        self.mirrorImageView.frame = CGRectMake(0,- size.height - self.mirrorDistant, size.width, size.height);
+                    }
+                        break;
+                    case DWMirrowViewDirectionLeft:
+                    {
+                        CGContextScaleCTM(context, - 1.0f, 1.0f);
+                        CGContextTranslateCTM(context, - size.width,0.0f);
+                        self.mirrorImageView.frame = CGRectMake(- size.width - self.mirrorDistant, 0, size.width, size.height);
+                    }
+                        break;
+                    case DWMirrowViewDirectionBelow:
+                    {
+                        CGContextScaleCTM(context, 1.0f, - 1.0f);
+                        CGContextTranslateCTM(context, 0.0f, - self.bounds.size.height);
+                        self.mirrorImageView.frame = CGRectMake(0, self.bounds.size.height + self.mirrorDistant, size.width, size.height);
+                    }
+                        break;
+                    case DWMirrowViewDirectionRight:
+                    {
+                        CGContextScaleCTM(context, - 1.0f, 1.0f);
+                        CGContextTranslateCTM(context, - self.bounds.size.width,0.0f);
+                        self.mirrorImageView.frame = CGRectMake(self.bounds.size.width + self.mirrorDistant, 0, size.width, size.height);
+                    }
+                        break;
+                    default:
+                    {
+                        CGContextScaleCTM(context, 1.0f, - 1.0f);
+                        CGContextTranslateCTM(context, 0.0f, - self.bounds.size.height);
+                        self.mirrorImageView.frame = CGRectMake(0, self.bounds.size.height + self.mirrorDistant, size.width, size.height);
+                    }
+                        break;
+                }
                 [self.layer renderInContext:context];
                 self.mirrorImageView.image = UIGraphicsGetImageFromCurrentImageContext();
                 UIGraphicsEndImageContext();
             }
             self.mirrorImageView.alpha = self.mirrorAlpha;
-            self.mirrorImageView.frame = CGRectMake(0, self.bounds.size.height + self.mirrorDistant, size.width, size.height);
         }
         self.layer.mask = self.maskLayer;
     }
@@ -138,12 +222,9 @@
 {
     _mirrorAlpha = [self safeValueBetween0And1:mirrorAlpha];
     if (self.mirrored) {
-        if (self.dynamic) {
-            CAReplicatorLayer * layer = (CAReplicatorLayer *)self.layer;
-            layer.instanceAlphaOffset = self.mirrorAlpha - 1;
-        }
-        else
-        {
+        CAReplicatorLayer * layer = (CAReplicatorLayer *)self.layer;
+        layer.instanceAlphaOffset = self.mirrorAlpha - 1;
+        if (!self.dynamic) {
             [self setNeedsDisplay];
         }
     }
@@ -171,15 +252,59 @@
     }
 }
 
+-(void)setMirrorDirection:(DWMirrowViewDirection)mirrorDirection
+{
+    _mirrorDirection = mirrorDirection;
+    if (self.mirrored) {
+        self.maskLayer = nil;
+        [self handleMirrorDistant:self.mirrorDistant];
+        [self setNeedsDisplay];
+    }
+}
+
 -(CAGradientLayer *)maskLayer
 {
     if (!_maskLayer) {
         _maskLayer = [CAGradientLayer layer];
-        _maskLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height * 2 + self.mirrorDistant);
-        _maskLayer.startPoint = CGPointMake(0, 0);
-        _maskLayer.endPoint = CGPointMake(0, 1);
-        _maskLayer.locations = [self getMaskLayerLocations];
+        switch (self.mirrorDirection) {
+            case DWMirrowViewDirectionAbove:
+            {
+                _maskLayer.frame = CGRectMake(0, - self.bounds.size.height - self.mirrorDistant, self.bounds.size.width, self.bounds.size.height * 2 + self.mirrorDistant);
+                _maskLayer.startPoint = CGPointMake(0, 1);
+                _maskLayer.endPoint = CGPointMake(0, 0);
+            }
+                break;
+            case DWMirrowViewDirectionLeft:
+            {
+                _maskLayer.frame = CGRectMake(- self.bounds.size.width - self.mirrorDistant, 0, self.bounds.size.width * 2 + self.mirrorDistant, self.bounds.size.height);
+                _maskLayer.startPoint = CGPointMake(1, 0);
+                _maskLayer.endPoint = CGPointMake(0, 0);
+            }
+                break;
+            case DWMirrowViewDirectionBelow:
+            {
+                _maskLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height * 2 + self.mirrorDistant);
+                _maskLayer.startPoint = CGPointMake(0, 0);
+                _maskLayer.endPoint = CGPointMake(0, 1);
+            }
+                break;
+            case DWMirrowViewDirectionRight:
+            {
+                _maskLayer.frame = CGRectMake(0, 0, self.bounds.size.width * 2 + self.mirrorDistant, self.bounds.size.height);
+                _maskLayer.startPoint = CGPointMake(0, 0);
+                _maskLayer.endPoint = CGPointMake(1, 0);
+            }
+                break;
+            default:
+            {
+                _maskLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height * 2 + self.mirrorDistant);
+                _maskLayer.startPoint = CGPointMake(0, 0);
+                _maskLayer.endPoint = CGPointMake(0, 1);
+            }
+                break;
+        }
         _maskLayer.colors = @[(id)[UIColor blackColor].CGColor,(id)[UIColor blackColor].CGColor,(id)[UIColor clearColor].CGColor];
+        _maskLayer.locations = [self getMaskLayerLocations];
     }
     return _maskLayer;
 }

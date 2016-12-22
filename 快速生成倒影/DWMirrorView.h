@@ -8,6 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
+typedef NS_ENUM(NSUInteger, DWMirrowViewDirection) {///倒影方向
+    DWMirrowViewDirectionAbove,
+    DWMirrowViewDirectionLeft,
+    DWMirrowViewDirectionBelow,
+    DWMirrowViewDirectionRight
+};
+
 /**
  DWMirrorView
  
@@ -20,6 +27,9 @@
  实现倒影控制
  实现动静态控制
  自定义倒影相关参数
+ 
+ version 1.0.1
+ 实现倒影方向
  */
 
 @interface DWMirrorView : UIView
@@ -38,5 +48,8 @@
 
 ///镜像淡去的比例,支持动画效果
 @property (nonatomic ,assign) CGFloat mirrorScale;
+
+///镜像方向
+@property (nonatomic ,assign) DWMirrowViewDirection mirrorDirection;
 
 @end
