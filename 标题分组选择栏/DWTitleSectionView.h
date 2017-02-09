@@ -28,4 +28,7 @@
 ///实例化方法
 -(instancetype)initWithFrame:(CGRect)frame titles:(NSArray *)titles handler:(void(^)(NSUInteger idx,NSString * title,UIButton * btn))handler;
 
+///选中第几项
+-(void)selectAtIndex:(NSUInteger)idx;
+
 @end

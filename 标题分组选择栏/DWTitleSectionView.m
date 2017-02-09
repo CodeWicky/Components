@@ -44,6 +44,15 @@
     return self;
 }
 
+-(void)selectAtIndex:(NSUInteger)idx
+{
+    if (idx > self.titles.count - 1) {
+        return;
+    }
+    _currentIdx = idx;
+    [self updateHighligthState];
+}
+
 -(void)setupUI
 {
     NSAssert(self.titles.count, @"the titles must contain at least one object");
