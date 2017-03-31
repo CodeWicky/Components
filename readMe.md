@@ -17,3 +17,6 @@
 
 ####6.标题分组选择栏
 ![标题分组选择栏](https://github.com/CodeWicky/Components/raw/master/%E6%A0%87%E9%A2%98%E5%88%86%E7%BB%84%E9%80%89%E6%8B%A9%E6%A0%8F/%E5%8A%A8%E7%94%BB%E6%BC%94%E7%A4%BA.gif)
+
+####7.步进滑竿
+![步进滑竿](https://github.com/CodeWicky/Components/raw/master/%E6%AD%A5%E8%BF%9B%E6%BB%91%E7%AB%BF/%E5%8A%A8%E7%94%BB%E5%B1%95%E7%A4%BA.gif)
