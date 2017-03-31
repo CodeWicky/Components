@@ -5,6 +5,7 @@
 
 ![新闻通告展示](https://github.com/CodeWicky/Components/raw/master/%E6%96%B0%E9%97%BB%E9%80%9A%E5%91%8A%E6%BB%9A%E5%8A%A8%E8%A7%86%E5%9B%BE/%E5%8A%A8%E7%94%BB%E5%B1%95%E7%A4%BA.gif)
 
+
 ####2.微信支付密码框
 
 ![微信支付密码框](https://github.com/CodeWicky/Components/raw/master/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98%E5%AF%86%E7%A0%81%E6%A1%86/%E5%8A%A8%E7%94%BB%E5%B1%95%E7%A4%BA.gif)
