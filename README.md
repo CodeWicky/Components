@@ -29,3 +29,7 @@
 ### 7.步进滑竿
 
 ![步进滑竿](https://github.com/CodeWicky/Components/raw/master/%E6%AD%A5%E8%BF%9B%E6%BB%91%E7%AB%BF/%E5%8A%A8%E7%94%BB%E5%B1%95%E7%A4%BA.gif)
+
+### 8.跑马灯
+
+![跑马灯](https://github.com/CodeWicky/Components/raw/master/%E8%B7%91%E9%A9%AC%E7%81%AF/TwinkleView.gif)
