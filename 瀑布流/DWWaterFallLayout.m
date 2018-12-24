@@ -113,14 +113,29 @@ typedef struct DWWaterFallLayoutIndexList {
     [self.attrs removeAllObjects];
     CGFloat tempX = self.edgeInsets.left;
     for (int i = 0; i  < itemCount; ++i) {
-        UICollectionViewLayoutAttributes * attr = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:[NSIndexPath indexPathForItem:i inSection:0]];
-        id<DWWaterFallLayoutItemProtocol> item = self.items[i];
-        CGFloat itemH = itemW * item.originSize.height / item.originSize.width;
-        attr.frame = CGRectMake(tempX, self.indexList.head->value, itemW, itemH);
-        [self.attrs addObject:attr];
-        self.indexList.head->value += (itemH + self.lineSpacing);
-        [self resortNodeList];
-        tempX = self.edgeInsets.left + (itemW + self.interitemSpacing) * self.indexList.head->index;
+        NSIndexPath * idxP = [NSIndexPath indexPathForItem:i inSection:0];
+        UICollectionViewLayoutAttributes * attr = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:idxP];
+        id obj = self.items[i];
+        CGSize oriS = CGSizeZero;
+        if ([obj conformsToProtocol:@protocol(DWWaterFallLayoutItemProtocol)] && [obj respondsToSelector:@selector(originSize)]) {
+            oriS = ((id<DWWaterFallLayoutItemProtocol>)obj).originSize;
+        } else if ([self.collectionView.delegate conformsToProtocol:@protocol(UICollectionViewDelegateFlowLayout) ] && [self.collectionView.delegate respondsToSelector:@selector(collectionView:layout:sizeForItemAtIndexPath:)]) {
+            oriS = [((id<UICollectionViewDelegateFlowLayout>)self.collectionView.delegate) collectionView:self.collectionView layout:self sizeForItemAtIndexPath:idxP];
+        } else {
+            NSLog(@"Can't fetch an originSize for cell at indexPath(section = 0,row = %d,you can set it in both items and -collectionView:layout:sizeForItemAtIndexPath:.",i);
+        }
+        
+        if (oriS.width * oriS.height == 0) {//非法尺寸
+            attr.frame = CGRectZero;
+            [self.attrs addObject:attr];
+        } else {
+            CGFloat itemH = itemW * oriS.height / oriS.width;
+            attr.frame = CGRectMake(tempX, self.indexList.head->value, itemW, itemH);
+            [self.attrs addObject:attr];
+            self.indexList.head->value += (itemH + self.lineSpacing);
+            [self resortNodeList];
+            tempX = self.edgeInsets.left + (itemW + self.interitemSpacing) * self.indexList.head->index;
+        }
     }
 }
 
@@ -135,14 +150,28 @@ typedef struct DWWaterFallLayoutIndexList {
     [self.attrs removeAllObjects];
     CGFloat tempY = self.edgeInsets.top;
     for (int i = 0; i  < itemCount; ++i) {
-        UICollectionViewLayoutAttributes * attr = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:[NSIndexPath indexPathForItem:i inSection:0]];
-        id<DWWaterFallLayoutItemProtocol> item = self.items[i];
-        CGFloat itemW = itemH * item.originSize.width / item.originSize.height;
-        attr.frame = CGRectMake(self.indexList.head->value, tempY, itemW, itemH);
-        [self.attrs addObject:attr];
-        self.indexList.head->value += (itemW + self.lineSpacing);
-        [self resortNodeList];
-        tempY = self.edgeInsets.top + (itemH + self.interitemSpacing) * self.indexList.head->index;
+        NSIndexPath * idxP = [NSIndexPath indexPathForItem:i inSection:0];
+        UICollectionViewLayoutAttributes * attr = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:idxP];
+        id obj = self.items[i];
+        CGSize oriS = CGSizeZero;
+        if ([obj conformsToProtocol:@protocol(DWWaterFallLayoutItemProtocol)] && [obj respondsToSelector:@selector(originSize)]) {
+            oriS = ((id<DWWaterFallLayoutItemProtocol>)obj).originSize;
+        } else if ([self.collectionView.delegate conformsToProtocol:@protocol(UICollectionViewDelegateFlowLayout) ] && [self.collectionView.delegate respondsToSelector:@selector(collectionView:layout:sizeForItemAtIndexPath:)]) {
+            oriS = [((id<UICollectionViewDelegateFlowLayout>)self.collectionView.delegate) collectionView:self.collectionView layout:self sizeForItemAtIndexPath:idxP];
+        } else {
+            NSLog(@"Can't fetch an originSize for cell at indexPath(section = 0,row = %d,you can set it in both items and -collectionView:layout:sizeForItemAtIndexPath:.",i);
+        }
+        if (oriS.width * oriS.height == 0) {//非法尺寸
+            attr.frame = CGRectZero;
+            [self.attrs addObject:attr];
+        } else {
+            CGFloat itemW = itemH * oriS.width / oriS.height;
+            attr.frame = CGRectMake(self.indexList.head->value, tempY, itemW, itemH);
+            [self.attrs addObject:attr];
+            self.indexList.head->value += (itemW + self.lineSpacing);
+            [self resortNodeList];
+            tempY = self.edgeInsets.top + (itemH + self.interitemSpacing) * self.indexList.head->index;
+        }
     }
 }
 #pragma mark --- override ---
